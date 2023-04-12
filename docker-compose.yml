@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  mongodb:
+    container_name: "mongo-db"
+    image: 'mongo'
+    volumes:
+      - data:/data/db
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: admin
+#      MONGO_INITDB_ROOT_PASSWORD: admin
+    env_file:
+      - ./env/mongo.env
+  backend:
+    container_name: "node-app"
+    build: ./backend
+    volumes:
+      - ./backend:/app
+      - logs:/app/logs
+      - /app/node_modules
+    ports:
+      - "80:80"
+#    environment:
+#      MONGODB_USERNAME: admin
+#      MONGODB_SECRET: admin
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb
+  frontend:
+    container_name: "goals-frontend"
+    build: ./frontend
+    volumes:
+      - ./frontend/src:/app/src
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+volumes:
+  data:
+  logs:
